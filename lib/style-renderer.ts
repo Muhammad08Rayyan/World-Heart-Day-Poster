@@ -22,19 +22,15 @@ export class StyleRenderer {
   private posterData?: PosterRenderData;
 
   constructor(styleId: string) {
-    console.log('Creating StyleRenderer for:', styleId);
     const style = POSTER_STYLES.find(s => s.id === styleId);
     if (!style) {
-      console.error('Available styles:', POSTER_STYLES.map(s => s.id));
       throw new Error(`Style with id "${styleId}" not found`);
     }
     this.style = style;
     this.config = style.config;
-    console.log('StyleRenderer created for:', this.style.name);
   }
 
   public render(context: CanvasRenderContext, data: PosterRenderData): void {
-    console.log('Rendering with style:', this.style.id, this.style.name);
     this.posterData = data; // Store data for async operations
     this.setupCanvas(context);
     this.drawBackground(context);
@@ -96,8 +92,6 @@ export class StyleRenderer {
     canvas.style.height = 'auto';
     canvas.style.maxWidth = '300px';
     canvas.style.aspectRatio = '3/4'; // Maintain 3:4 aspect ratio
-    
-    console.log(`Canvas setup: ${canvas.width}x${canvas.height}`);
   }
 
   private drawBackground(context: CanvasRenderContext): void {
@@ -812,11 +806,8 @@ export function renderPosterWithStyle(
   styleId: string, 
   data: PosterRenderData
 ): void {
-  console.log('renderPosterWithStyle called with:', styleId);
-  
   const ctx = canvas.getContext('2d');
   if (!ctx) {
-    console.error('No canvas context available');
     return;
   }
 
@@ -829,11 +820,8 @@ export function renderPosterWithStyle(
       height: canvas.height
     };
 
-    console.log('About to render with style:', styleId, 'Canvas size:', canvas.width, 'x', canvas.height);
     renderer.render(context, data);
-    console.log('Render completed for style:', styleId);
   } catch (error) {
-    console.error('Error in renderPosterWithStyle:', error);
     throw error;
   }
 }

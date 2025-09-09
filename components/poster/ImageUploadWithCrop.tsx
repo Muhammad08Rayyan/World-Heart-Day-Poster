@@ -138,9 +138,8 @@ const ImageUploadWithCrop: React.FC<ImageUploadWithCropProps> = ({ onImageChange
         }
       };
       reader.readAsDataURL(file);
-    } catch (error) {
+    } catch {
       toast.error('Failed to process image');
-      console.error('Image processing error:', error);
     } finally {
       setIsProcessing(false);
     }
@@ -169,8 +168,6 @@ const ImageUploadWithCrop: React.FC<ImageUploadWithCropProps> = ({ onImageChange
       
       // Reset image transform when new image loads
       setImageTransform({ scale: 1, translateX: 0, translateY: 0 });
-      
-      console.log('Crop area initialized:', { x: centerX, y: centerY, size: cropSize });
     }, 100);
   }, []);
 
@@ -352,8 +349,6 @@ const ImageUploadWithCrop: React.FC<ImageUploadWithCropProps> = ({ onImageChange
     const img = imageRef.current;
     const container = containerRef.current.getBoundingClientRect();
     const imgRect = img.getBoundingClientRect();
-    
-    console.log('Cropping with:', { cropArea, containerSize: { w: container.width, h: container.height }, imgRect });
     
     // Calculate scale between displayed image and actual image
     const scaleX = img.naturalWidth / imgRect.width;

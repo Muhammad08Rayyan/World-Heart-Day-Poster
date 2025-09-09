@@ -68,11 +68,8 @@ const PosterBuilder: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const updatePosterData = (field: keyof PosterData, value: string) => {
-    console.log('Updating poster data:', field, value);
-    
     setPosterData(prev => {
       const newData = { ...prev, [field]: value };
-      console.log('New poster data:', newData);
       return newData;
     });
     
@@ -82,8 +79,6 @@ const PosterBuilder: React.FC = () => {
     
     // Force regenerate poster if we're on preview step and changing style
     if (field === 'selectedStyle' && currentStep === 3) {
-      console.log('Style change detected, clearing canvas and regenerating...');
-      
       // Immediately clear canvas
       const canvas = canvasRef.current;
       if (canvas) {
@@ -97,7 +92,6 @@ const PosterBuilder: React.FC = () => {
       
       // Force immediate regeneration with new style
       setTimeout(() => {
-        console.log('Regenerating World Heart Day poster');
         if (canvasRef.current) {
           try {
             renderWorldHeartDayPoster(canvasRef.current, {
@@ -106,8 +100,8 @@ const PosterBuilder: React.FC = () => {
               message: posterData.message,
               imageData: posterData.imageData
             });
-          } catch (error) {
-            console.error('Failed to generate poster during style switch:', error);
+          } catch {
+            // Silent error handling during style switch
           }
         }
       }, 100);
@@ -159,7 +153,6 @@ const PosterBuilder: React.FC = () => {
   // Generate poster whenever we enter preview step or data changes
   useEffect(() => {
     if (currentStep === 3 && canvasRef.current) {
-      console.log('useEffect triggered, generating poster with:', posterData.selectedStyle);
       // Small delay to ensure canvas is properly rendered
       setTimeout(() => {
         if (canvasRef.current) {
@@ -177,10 +170,8 @@ const PosterBuilder: React.FC = () => {
               message: posterData.message,
               imageData: posterData.imageData
             });
-            
-            console.log('useEffect: World Heart Day poster generated');
-          } catch (error) {
-            console.error('useEffect: Failed to generate poster:', error);
+          } catch {
+            // Silent error handling
           }
         }
       }, 200);
@@ -192,11 +183,8 @@ const PosterBuilder: React.FC = () => {
   const generatePoster = () => {
     const canvas = canvasRef.current;
     if (!canvas) {
-      console.log('No canvas available for generation');
       return;
     }
-
-    console.log('Generating poster with style:', posterData.selectedStyle);
     
     try {
       // Clear canvas completely
@@ -214,10 +202,7 @@ const PosterBuilder: React.FC = () => {
         message: posterData.message,
         imageData: posterData.imageData
       });
-      
-      console.log('World Heart Day poster generated successfully');
-    } catch (error) {
-      console.error('Failed to generate poster:', error);
+    } catch {
       toast.error('Failed to generate poster. Please try again.');
     }
   };
@@ -237,7 +222,6 @@ const PosterBuilder: React.FC = () => {
     }
 
     // Force regenerate the poster first to make sure canvas has current content
-    console.log('Regenerating poster before download...');
     generatePoster();
     
     // Wait a moment for the poster to render, then download and upload
@@ -249,13 +233,8 @@ const PosterBuilder: React.FC = () => {
           return;
         }
 
-        // Debug: Check canvas dimensions and content
-        console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
-        
         // Get the image data
         const dataURL = canvas.toDataURL('image/png', 1.0);
-        console.log('DataURL length:', dataURL.length);
-        console.log('DataURL preview:', dataURL.substring(0, 100));
         
         if (!dataURL || dataURL === 'data:,' || dataURL.length < 1000) {
           toast.error('Canvas appears empty - trying to regenerate...');
@@ -282,7 +261,6 @@ const PosterBuilder: React.FC = () => {
         document.body.removeChild(link);
         
         toast.success(`Poster downloaded: ${filename}.png 🎉`);
-        console.log('Download successful:', filename);
 
         // Upload to Cloudinary silently
         try {
@@ -301,8 +279,7 @@ const PosterBuilder: React.FC = () => {
         } catch {
           // Silent upload - no user notification
         }
-      } catch (error) {
-        console.error('Download error:', error);
+      } catch {
         toast.error('Download failed - please try again');
       }
     }, 1000); // Wait 1 second for poster to render

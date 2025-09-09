@@ -21,7 +21,6 @@ export async function uploadToCloudinary(dataUrl: string, filename: string) {
       public_id: result.public_id,
     };
   } catch (error) {
-    console.error('Cloudinary upload error:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Upload failed',

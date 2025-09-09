@@ -247,7 +247,6 @@ const PosterPreview: React.FC<PosterPreviewProps> = ({
         
         ctx.restore();
       } catch {
-        console.error('Failed to load user image');
         // Fall through to placeholder
       }
     }
@@ -385,8 +384,6 @@ const PosterPreview: React.FC<PosterPreviewProps> = ({
       const screenImg = await loadImage('/Screen.png');
       ctx.drawImage(screenImg, 0, 0, canvas.width, 260);
     } catch {
-      console.warn('Header image failed to load, drawing simple header');
-      
       // Draw simple header background
       const headerGradient = ctx.createLinearGradient(0, 0, 0, 260);
       headerGradient.addColorStop(0, '#DC2626');
@@ -435,8 +432,7 @@ const PosterPreview: React.FC<PosterPreviewProps> = ({
           toast.success('Poster downloaded successfully!');
         }
       }, 'image/png', 0.9);
-    } catch (error) {
-      console.error('Download failed:', error);
+    } catch {
       toast.error('Failed to download poster');
     } finally {
       setIsDownloading(false);
