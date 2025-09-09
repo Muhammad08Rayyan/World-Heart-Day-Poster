@@ -18,7 +18,18 @@ const PosterPreview: React.FC<PosterPreviewProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const lastFormDataRef = useRef<string>('');
+
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const drawStar = (ctx: CanvasRenderingContext2D, x: number, y: number, spikes: number, outerRadius: number, innerRadius: number) => {
     let rot = Math.PI / 2 * 3;
@@ -68,7 +79,7 @@ const PosterPreview: React.FC<PosterPreviewProps> = ({
     ctx.restore();
   };
 
-  const drawEmptyAreaRefinements = (ctx: CanvasRenderingContext2D, width: number, height: number, centerX: number) => {
+  const drawEmptyAreaRefinements = (ctx: CanvasRenderingContext2D, width: number, height: number, centerX: number, centerY: number, radius: number) => {
     ctx.save();
     
     // Add decorative hearts spread around the design - doubled quantity with red color
@@ -126,18 +137,19 @@ const PosterPreview: React.FC<PosterPreviewProps> = ({
     drawStar(ctx, 150, 380, 4, 5, 2);
     drawStar(ctx, width - 150, 380, 4, 5, 2);
     
-    // Elegant divider line above message area
+    // Elegant divider line above message area (dynamically positioned)
+    const dividerY = centerY + radius + 20;
     ctx.strokeStyle = '#e9ecef';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(centerX - 80, 560);
-    ctx.lineTo(centerX + 80, 560);
+    ctx.moveTo(centerX - 80, dividerY);
+    ctx.lineTo(centerX + 80, dividerY);
     ctx.stroke();
     
     // Small center accent on divider
     ctx.fillStyle = '#DC2626';
     ctx.beginPath();
-    ctx.arc(centerX, 560, 3, 0, 2 * Math.PI);
+    ctx.arc(centerX, dividerY, 3, 0, 2 * Math.PI);
     ctx.fill();
     
     // Clean geometric elements near bottom
@@ -180,7 +192,7 @@ const PosterPreview: React.FC<PosterPreviewProps> = ({
     const radius = 70;
     
     // Add subtle elements in empty areas
-    drawEmptyAreaRefinements(ctx, canvas.width, canvas.height, centerX);
+    drawEmptyAreaRefinements(ctx, canvas.width, canvas.height, centerX, centerY, radius);
     
     // Simple white circle background
     ctx.fillStyle = '#f8f9fa';
@@ -270,41 +282,45 @@ const PosterPreview: React.FC<PosterPreviewProps> = ({
       ctx.fillText('👤', centerX, centerY + 12);
     }
     
-    // Clean name styling - positioned below profile
-    ctx.fillStyle = '#212529';
-    ctx.font = 'bold 24px "Poppins", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(name.toUpperCase(), centerX, 510);
+    // Add simple dark overlay behind text for readability
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(centerX - radius, centerY + radius - 60, radius * 2, 55);
     
-    // Clean designation - increased size with auto-adjustment
+    // Name styling - positioned over profile image
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 20px "Poppins", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 3;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    ctx.fillText(name.toUpperCase(), centerX, centerY + radius - 30);
+    
+    // Designation - positioned over profile image
     if (designation) {
-      ctx.fillStyle = '#6c757d';
+      ctx.fillStyle = '#e0e0e0';
+      ctx.font = '14px "Poppins", sans-serif';
       ctx.textAlign = 'center';
-      
-      // Auto-adjust if text is too long
-      const maxWidth = canvas.width - 80;
-      let fontSize = 28; // Start with much larger size
-      ctx.font = `${fontSize}px "Poppins", sans-serif`;
-      
-      while (ctx.measureText(designation).width > maxWidth && fontSize > 18) {
-        fontSize -= 1;
-        ctx.font = `${fontSize}px "Poppins", sans-serif`;
-      }
-      
-      ctx.fillText(designation, centerX, 535);
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+      ctx.shadowBlur = 2;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 1;
+      ctx.fillText(designation, centerX, centerY + radius - 10);
     }
     
-    // Clean message area - positioned below name/designation
-    const msgY = 580;
+    // Reset shadow
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    
+    // Clean message area - positioned below profile image
+    const msgY = centerY + radius + 40; // Position below the profile image with some spacing
     const msgWidth = canvas.width - 80;
     
-    // Simple message container
+    // Simple message container without borders
     ctx.fillStyle = '#f8f9fa';
     ctx.fillRect(40, msgY, msgWidth, 150);
-    
-    ctx.strokeStyle = '#DC2626';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(40, msgY, msgWidth, 150);
     
     // Clean message text with increased size and spacing
     ctx.fillStyle = '#495057';
@@ -365,58 +381,68 @@ const PosterPreview: React.FC<PosterPreviewProps> = ({
       return;
     }
 
-    // Set canvas size
-    canvas.width = 600;
-    canvas.height = 800;
+    try {
+
+    // Set canvas size - simplified for better mobile compatibility
+    const width = 600;
+    const height = 800;
+    
+    canvas.width = width;
+    canvas.height = height;
     
     // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, width, height);
     
     // Clean modern background
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, width, height);
     
     // Add subtle background pattern
-    drawSubtleBackgroundPattern(ctx, canvas.width, canvas.height);
+    drawSubtleBackgroundPattern(ctx, width, height);
 
     try {
       // Load header image with proper error handling
       const screenImg = await loadImage('/Screen.png');
-      ctx.drawImage(screenImg, 0, 0, canvas.width, 260);
+      ctx.drawImage(screenImg, 0, 0, width, 260);
     } catch {
       // Draw simple header background
       const headerGradient = ctx.createLinearGradient(0, 0, 0, 260);
       headerGradient.addColorStop(0, '#DC2626');
       headerGradient.addColorStop(1, '#B91C1C');
       ctx.fillStyle = headerGradient;
-      ctx.fillRect(0, 0, canvas.width, 260);
+      ctx.fillRect(0, 0, width, 260);
       
       // Add header text
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 30px "Poppins", sans-serif';
       ctx.textAlign = 'center';
       ctx.letterSpacing = '1.5px';
-      ctx.fillText('WORLD HEART DAY', canvas.width / 2, 130);
+      ctx.fillText('WORLD HEART DAY', width / 2, 130);
       
       // Date
       ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
       ctx.font = '18px "Poppins", sans-serif';
       ctx.letterSpacing = '0.8px';
-      ctx.fillText('29th September, 2025', canvas.width / 2, 160);
+      ctx.fillText('29th September, 2025', width / 2, 160);
     }
     
     // Draw the rest of the poster content
     await drawPosterContent(ctx, formData.name, formData.designation || '', formData.message, formData.imageData, canvas);
-    setIsGenerating(false);
+    
+    } catch (error) {
+      console.error('Error generating poster:', error);
+    } finally {
+      setIsGenerating(false);
+    }
   }, [formData, isGenerating, drawPosterContent, loadImage]);
 
   useEffect(() => {
     const currentFormDataString = JSON.stringify(formData);
-    if (canvasRef.current && currentFormDataString !== lastFormDataRef.current) {
+    if (canvasRef.current && currentFormDataString !== lastFormDataRef.current && !isGenerating) {
       lastFormDataRef.current = currentFormDataString;
       generatePoster();
     }
-  }, [formData, generatePoster]);
+  }, [formData, generatePoster, isGenerating]);
 
   const handleDownload = () => {
     const canvas = canvasRef.current;
@@ -457,8 +483,9 @@ const PosterPreview: React.FC<PosterPreviewProps> = ({
           style={{ 
             maxWidth: '100%', 
             height: 'auto',
-            maxHeight: '500px' // Limit height for better mobile experience
-          }}
+            maxHeight: isMobile ? '400px' : '500px', // Smaller on mobile
+            imageRendering: 'auto'
+          } as React.CSSProperties}
         />
       </div>
 
