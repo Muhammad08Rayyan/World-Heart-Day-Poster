@@ -34,27 +34,22 @@ export function renderWorldHeartDayPoster(
     footerHeight: 100 // Footer height
   };
 
-  // Simple rendering
+  // Simple rendering with proper async handling
   drawPixelPerfectBackground(ctx, canvas.width, canvas.height);
   
-  // Draw background image for main area
-  drawBackgroundImage(ctx, canvas.width, canvas.height, layout.footerHeight);
-  
-  // Draw all elements on top of background
-  setTimeout(() => {
-    // Draw profile, name, designation
+  // Draw background image and ensure all elements render after it loads
+  drawBackgroundImageWithCallback(ctx, canvas.width, canvas.height, layout.footerHeight, () => {
+    // Draw all elements after background loads
     drawPixelPerfectProfile(ctx, canvas.width, layout.profileY, data);
     drawNameAndDesignation(ctx, canvas.width, layout.nameY, layout.designationY, data.name, data.designation);
-    
-    // Draw message box
     drawPixelPerfectMessage(ctx, canvas.width, layout.messageY, data.message);
-  }, 100);
-  
-  // Draw footer
-  drawFooterImage(ctx, canvas.width, canvas.height, layout.footerHeight);
-  
-  // Draw red borders on top of everything
-  drawProfessionalBorders(ctx, canvas.width, canvas.height);
+    
+    // Draw footer
+    drawFooterImageWithCallback(ctx, canvas.width, canvas.height, layout.footerHeight, () => {
+      // Draw red borders on top of everything after footer loads
+      drawProfessionalBorders(ctx, canvas.width, canvas.height);
+    });
+  });
 }
 
 // Clean professional background
@@ -64,8 +59,8 @@ function drawPixelPerfectBackground(ctx: CanvasRenderingContext2D, width: number
   ctx.fillRect(0, 0, width, height);
 }
 
-// Draw background image for main area
-function drawBackgroundImage(ctx: CanvasRenderingContext2D, width: number, height: number, footerHeight: number): void {
+// Draw background image for main area with callback
+function drawBackgroundImageWithCallback(ctx: CanvasRenderingContext2D, width: number, height: number, footerHeight: number, callback: () => void): void {
   const bgImg = new Image();
   bgImg.crossOrigin = 'anonymous';
   bgImg.src = '/Background.png';
@@ -73,6 +68,8 @@ function drawBackgroundImage(ctx: CanvasRenderingContext2D, width: number, heigh
   bgImg.onload = () => {
     const mainAreaHeight = height - footerHeight;
     ctx.drawImage(bgImg, 0, 0, width, mainAreaHeight);
+    // Execute callback after background is drawn
+    callback();
   };
   
   bgImg.onerror = () => {
@@ -83,6 +80,8 @@ function drawBackgroundImage(ctx: CanvasRenderingContext2D, width: number, heigh
     gradient.addColorStop(1, '#e9ecef');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, mainAreaHeight);
+    // Execute callback after fallback is drawn
+    callback();
   };
 }
 
@@ -404,7 +403,7 @@ function drawPixelPerfectMessage(
 
 // Remove the old header and heart functions since upper section image handles this
 
-function drawFooterImage(ctx: CanvasRenderingContext2D, width: number, height: number, footerHeight: number): void {
+function drawFooterImageWithCallback(ctx: CanvasRenderingContext2D, width: number, height: number, footerHeight: number, callback: () => void): void {
   const footerImg = new Image();
   footerImg.crossOrigin = 'anonymous';
   footerImg.src = '/Footer.jpg';
@@ -412,6 +411,8 @@ function drawFooterImage(ctx: CanvasRenderingContext2D, width: number, height: n
   footerImg.onload = () => {
     const footerY = height - footerHeight;
     ctx.drawImage(footerImg, 0, footerY, width, footerHeight);
+    // Execute callback after footer is drawn
+    callback();
   };
   
   footerImg.onerror = () => {
@@ -419,5 +420,7 @@ function drawFooterImage(ctx: CanvasRenderingContext2D, width: number, height: n
     const footerY = height - footerHeight;
     ctx.fillStyle = '#DC2626';
     ctx.fillRect(0, footerY, width, footerHeight);
+    // Execute callback after fallback is drawn
+    callback();
   };
 }
