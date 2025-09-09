@@ -27,10 +27,10 @@ export function renderWorldHeartDayPoster(
 
   // Simple layout system
   const layout = {
-    profileY: 300, // Profile position
-    nameY: 420, // Name below profile
-    designationY: 455, // Designation below name
-    messageY: 490, // Message box
+    profileY: 300, // Profile position moved up
+    nameY: 400, // Name below profile
+    designationY: 440, // Designation below name  
+    messageY: 500, // Message box positioned above footer
     footerHeight: 100 // Footer height
   };
 
@@ -86,23 +86,53 @@ function drawBackgroundImage(ctx: CanvasRenderingContext2D, width: number, heigh
   };
 }
 
-// Simple name and designation drawing
+// Enhanced name and designation styling with professional appearance
 function drawNameAndDesignation(ctx: CanvasRenderingContext2D, width: number, nameY: number, designationY: number, name: string, designation: string): void {
-  const centerX = width / 2;
+  const centerX = width * 0.74; // Move to right side to align with profile
   
   ctx.save();
   
-  // Name styling - black text
-  ctx.font = 'bold 26px system-ui';
+  // Name styling with shadow effect for depth
+  ctx.font = 'bold 22px system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#000000';
+  
+  // Add subtle shadow for name
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  ctx.fillText(name.toUpperCase(), centerX + 2, nameY + 2);
+  
+  // Main name text with gradient effect
+  const gradient = ctx.createLinearGradient(0, nameY - 20, 0, nameY + 20);
+  gradient.addColorStop(0, '#1F2937');
+  gradient.addColorStop(1, '#374151');
+  ctx.fillStyle = gradient;
   ctx.fillText(name.toUpperCase(), centerX, nameY);
   
-  // Designation styling - black text
+  // Designation styling with elegant presentation
   if (designation) {
-    ctx.font = '16px system-ui';
-    ctx.fillStyle = '#000000';
+    ctx.font = 'italic 18px Georgia, serif';
+    
+    // Create elegant background for designation
+    const designationWidth = ctx.measureText(designation).width + 40;
+    const designationHeight = 30;
+    const rectX = centerX - designationWidth / 2;
+    const rectY = designationY - designationHeight / 2;
+    
+    // Background with rounded corners
+    ctx.fillStyle = 'rgba(220, 38, 38, 0.1)';
+    ctx.beginPath();
+    ctx.roundRect(rectX, rectY, designationWidth, designationHeight, 15);
+    ctx.fill();
+    
+    // Border for designation box
+    ctx.strokeStyle = '#DC2626';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(rectX, rectY, designationWidth, designationHeight, 15);
+    ctx.stroke();
+    
+    // Designation text
+    ctx.fillStyle = '#DC2626';
     ctx.fillText(designation, centerX, designationY);
   }
   
@@ -135,8 +165,8 @@ function drawProfessionalBorders(ctx: CanvasRenderingContext2D, width: number, h
 // Header is now handled by upper section image
 
 function drawPixelPerfectProfile(ctx: CanvasRenderingContext2D, width: number, profileY: number, data: WorldHeartDayPosterData): void {
-  const centerX = width / 2;
-  const radius = 65;
+  const centerX = width * 0.8; // Move to right side
+  const radius = 60; // Decreased size
 
   ctx.save();
   
@@ -281,43 +311,62 @@ function drawPixelPerfectMessage(
   messageY: number,
   message: string
 ): void {
-  const boxX = 30;
-  const boxWidth = width - 60;
-  const boxHeight = 100; // Fixed height
+  const boxWidth = width * 0.5; // Smaller width for compact design
+  const boxX = width * 0.7 - boxWidth / 2; // Center with profile pic at 0.8
+  const boxHeight = 180; // Increased height for better text spacing
 
   ctx.save();
   
-  // Clean white background with subtle border
-  ctx.fillStyle = '#FFFFFF';
+  // Enhanced background with gradient
+  const gradient = ctx.createLinearGradient(boxX, messageY, boxX, messageY + boxHeight);
+  gradient.addColorStop(0, '#FFFFFF');
+  gradient.addColorStop(1, '#FAFAFA');
+  ctx.fillStyle = gradient;
   ctx.beginPath();
-  ctx.roundRect(boxX, messageY, boxWidth, boxHeight, 8);
+  ctx.roundRect(boxX, messageY, boxWidth, boxHeight, 12);
   ctx.fill();
   
-  // Professional red border
-  ctx.strokeStyle = '#DC2626';
-  ctx.lineWidth = 2;
+  // Enhanced shadow effect
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 4;
+  ctx.fillStyle = '#FFFFFF';
   ctx.beginPath();
-  ctx.roundRect(boxX, messageY, boxWidth, boxHeight, 8);
+  ctx.roundRect(boxX, messageY, boxWidth, boxHeight, 12);
+  ctx.fill();
+  
+  // Reset shadow
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+  
+  // Professional red border with better width
+  ctx.strokeStyle = '#DC2626';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.roundRect(boxX, messageY, boxWidth, boxHeight, 12);
   ctx.stroke();
   
   ctx.restore();
   
-  // Clean quote marks
+  // Enhanced quote marks with better positioning
   ctx.save();
   ctx.fillStyle = '#DC2626';
-  ctx.font = '20px system-ui';
+  ctx.font = 'bold 24px Georgia, serif';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
-  ctx.fillText('"', boxX + 12, messageY + 12);
+  ctx.fillText('"', boxX + 15, messageY + 15);
   
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
-  ctx.fillText('"', boxX + boxWidth - 12, messageY + boxHeight - 12);
+  ctx.fillText('"', boxX + boxWidth - 15, messageY + boxHeight - 15);
   ctx.restore();
 
-  // Clean message text styling
-  ctx.fillStyle = '#374151';
-  ctx.font = '14px system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
+  // Enhanced message text styling with larger font
+  ctx.fillStyle = '#1F2937';
+  ctx.font = 'bold 16px system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
 
@@ -325,7 +374,7 @@ function drawPixelPerfectMessage(
   const words = message.split(' ');
   const lines = [];
   let currentLine = '';
-  const maxWidth = boxWidth - 50; // More reasonable text margins
+  const maxWidth = boxWidth - 70; // Better margins for readability
   
   for (const word of words) {
     const testLine = currentLine + word + ' ';
@@ -338,15 +387,18 @@ function drawPixelPerfectMessage(
   }
   lines.push(currentLine.trim());
 
-  // Simple text positioning
-  const lineHeight = 18;
-  const maxLines = 4;
+  // Enhanced text positioning with better spacing
+  const lineHeight = 20; // Adjusted line height for better fit
+  const maxLines = 5; // Allow more lines for longer messages
   const linesToShow = Math.min(lines.length, maxLines);
-  const startY = messageY + 30;
+  
+  // Calculate vertical centering based on actual number of lines
+  const totalTextHeight = (linesToShow - 1) * lineHeight;
+  const startY = messageY + (boxHeight / 2) - (totalTextHeight / 2);
   
   ctx.textAlign = 'center';
   for (let i = 0; i < linesToShow; i++) {
-    ctx.fillText(lines[i], width / 2, startY + i * lineHeight);
+    ctx.fillText(lines[i], width * 0.7, startY + i * lineHeight); // Center with message box at 0.7
   }
 }
 

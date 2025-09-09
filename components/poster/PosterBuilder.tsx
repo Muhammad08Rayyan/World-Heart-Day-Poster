@@ -114,8 +114,8 @@ const PosterBuilder: React.FC = () => {
     if (stepIndex === 0) {
       if (!posterData.name.trim()) {
         newErrors.name = 'Name is required';
-      } else if (posterData.name.length > 25) {
-        newErrors.name = 'Name must be 25 characters or less';
+      } else if (posterData.name.length > 20) {
+        newErrors.name = 'Name must be 20 characters or less';
       }
       
       if (!posterData.designation.trim()) {
@@ -300,7 +300,7 @@ const PosterBuilder: React.FC = () => {
                 value={posterData.name}
                 onChange={(e) => updatePosterData('name', e.target.value)}
                 placeholder="Enter your full name"
-                maxLength={25}
+                maxLength={20}
                 className={`w-full px-4 py-3 border-2 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors ${
                   errors.name ? 'border-red-300 bg-red-50' : 'border-gray-200 focus:border-red-500'
                 }`}
@@ -308,7 +308,7 @@ const PosterBuilder: React.FC = () => {
               {errors.name && (
                 <p className="mt-1 text-sm text-red-600">{errors.name}</p>
               )}
-              <p className="mt-1 text-xs text-gray-500">{posterData.name.length}/25 characters</p>
+              <p className="mt-1 text-xs text-gray-500">{posterData.name.length}/20 characters</p>
             </div>
 
             <div>
