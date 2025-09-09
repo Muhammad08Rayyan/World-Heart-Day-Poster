@@ -27,7 +27,7 @@ export function renderWorldHeartDayPoster(
 
   // Simple layout system
   const layout = {
-    profileY: 300, // Profile position moved up
+    profileY: 280, // Profile position moved up
     nameY: 400, // Name below profile
     designationY: 440, // Designation below name  
     messageY: 500, // Message box positioned above footer
@@ -164,8 +164,8 @@ function drawProfessionalBorders(ctx: CanvasRenderingContext2D, width: number, h
 // Header is now handled by upper section image
 
 function drawPixelPerfectProfile(ctx: CanvasRenderingContext2D, width: number, profileY: number, data: WorldHeartDayPosterData): void {
-  const centerX = width * 0.8; // Move to right side
-  const radius = 60; // Decreased size
+  const centerX = width * 0.74; // Move to right side
+  const radius = 70; // Decreased size
 
   ctx.save();
   
