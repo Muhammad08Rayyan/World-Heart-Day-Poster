@@ -25,12 +25,12 @@ export function renderWorldHeartDayPoster(
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
 
-  // Simple layout system
+  // Updated layout system
   const layout = {
-    profileY: 280, // Profile position moved up
-    nameY: 400, // Name below profile
-    designationY: 440, // Designation below name  
-    messageY: 500, // Message box positioned above footer
+    profileY: 320, // Profile position moved down and will be positioned to the left
+    nameY: 80, // Name moved to top right
+    designationY: 105, // Designation below name in top right
+    messageY: 575, // Message positioned on background yellow circle
     footerHeight: 100 // Footer height
   };
 
@@ -44,10 +44,9 @@ export function renderWorldHeartDayPoster(
     drawNameAndDesignation(ctx, canvas.width, layout.nameY, layout.designationY, data.name, data.designation);
     drawPixelPerfectMessage(ctx, canvas.width, layout.messageY, data.message);
     
-    // Draw footer
+    // Draw footer without red borders
     drawFooterImageWithCallback(ctx, canvas.width, canvas.height, layout.footerHeight, () => {
-      // Draw red borders on top of everything after footer loads
-      drawProfessionalBorders(ctx, canvas.width, canvas.height);
+      // Footer loaded, no additional borders needed
     });
   });
 }
@@ -85,87 +84,38 @@ function drawBackgroundImageWithCallback(ctx: CanvasRenderingContext2D, width: n
   };
 }
 
-// Enhanced name and designation styling with professional appearance
+// Clean name and designation styling positioned in top right
 function drawNameAndDesignation(ctx: CanvasRenderingContext2D, width: number, nameY: number, designationY: number, name: string, designation: string): void {
-  const centerX = width * 0.74; // Move to right side to align with profile
+  const rightX = width * 0.75; // Position in top right area
   
   ctx.save();
   
-  // Name styling with shadow effect for depth
-  ctx.font = 'bold 22px system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
+  // Clean name styling
+  ctx.font = 'bold 22px "Poppins", system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#1F2937';
+  ctx.fillText(name.toUpperCase(), rightX, nameY);
   
-  // Add subtle shadow for name
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-  ctx.fillText(name.toUpperCase(), centerX + 2, nameY + 2);
-  
-  // Main name text with gradient effect
-  const gradient = ctx.createLinearGradient(0, nameY - 20, 0, nameY + 20);
-  gradient.addColorStop(0, '#1F2937');
-  gradient.addColorStop(1, '#374151');
-  ctx.fillStyle = gradient;
-  ctx.fillText(name.toUpperCase(), centerX, nameY);
-  
-  // Designation styling with elegant presentation
+  // Simple designation styling
   if (designation) {
-    ctx.font = 'italic 18px Georgia, serif';
-    
-    // Create elegant background for designation
-    const designationWidth = ctx.measureText(designation).width + 40;
-    const designationHeight = 30;
-    const rectX = centerX - designationWidth / 2;
-    const rectY = designationY - designationHeight / 2;
-    
-    // Background with rounded corners
-    ctx.fillStyle = 'rgba(220, 38, 38, 0.1)';
-    ctx.beginPath();
-    ctx.roundRect(rectX, rectY, designationWidth, designationHeight, 15);
-    ctx.fill();
-    
-    // Border for designation box
-    ctx.strokeStyle = '#DC2626';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.roundRect(rectX, rectY, designationWidth, designationHeight, 15);
-    ctx.stroke();
-    
-    // Designation text
+    ctx.font = '20px "Poppins", sans-serif';
     ctx.fillStyle = '#DC2626';
-    ctx.fillText(designation, centerX, designationY);
+    ctx.fillText(designation, rightX, designationY);
   }
   
   ctx.restore();
 }
 
-function drawProfessionalBorders(ctx: CanvasRenderingContext2D, width: number, height: number): void {
-  ctx.save();
-  
-  const borderWidth = 8;
-  ctx.fillStyle = '#DC2626';
-  
-  // Top border
-  ctx.fillRect(0, 0, width, borderWidth);
-  
-  // Bottom border  
-  ctx.fillRect(0, height - borderWidth, width, borderWidth);
-  
-  // Left border
-  ctx.fillRect(0, 0, borderWidth, height);
-  
-  // Right border
-  ctx.fillRect(width - borderWidth, 0, borderWidth, height);
-  
-  ctx.restore();
-}
+// Red borders function removed - no longer needed
 
 
 
 // Header is now handled by upper section image
 
 function drawPixelPerfectProfile(ctx: CanvasRenderingContext2D, width: number, profileY: number, data: WorldHeartDayPosterData): void {
-  const centerX = width * 0.74; // Move to right side
-  const radius = 70; // Decreased size
+  const centerX = width * 0.72; // Move to left side
+  const radius = 100; // Keep same size
 
   ctx.save();
   
@@ -310,70 +260,22 @@ function drawPixelPerfectMessage(
   messageY: number,
   message: string
 ): void {
-  const boxWidth = width * 0.5; // Smaller width for compact design
-  const boxX = width * 0.7 - boxWidth / 2; // Center with profile pic at 0.8
-  const boxHeight = 180; // Increased height for better text spacing
+  // Position text directly on background without box - centered on canvas
+  const centerX = width * 0.28;
+  const maxWidth = width * 0.5; // Use most of the canvas width
 
   ctx.save();
   
-  // Enhanced background with gradient
-  const gradient = ctx.createLinearGradient(boxX, messageY, boxX, messageY + boxHeight);
-  gradient.addColorStop(0, '#FFFFFF');
-  gradient.addColorStop(1, '#FAFAFA');
-  ctx.fillStyle = gradient;
-  ctx.beginPath();
-  ctx.roundRect(boxX, messageY, boxWidth, boxHeight, 12);
-  ctx.fill();
-  
-  // Enhanced shadow effect
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-  ctx.shadowBlur = 8;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 4;
-  ctx.fillStyle = '#FFFFFF';
-  ctx.beginPath();
-  ctx.roundRect(boxX, messageY, boxWidth, boxHeight, 12);
-  ctx.fill();
-  
-  // Reset shadow
-  ctx.shadowColor = 'transparent';
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
-  
-  // Professional red border with better width
-  ctx.strokeStyle = '#DC2626';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(boxX, messageY, boxWidth, boxHeight, 12);
-  ctx.stroke();
-  
-  ctx.restore();
-  
-  // Enhanced quote marks with better positioning
-  ctx.save();
-  ctx.fillStyle = '#DC2626';
-  ctx.font = 'bold 24px Georgia, serif';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
-  ctx.fillText('"', boxX + 15, messageY + 15);
-  
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'bottom';
-  ctx.fillText('"', boxX + boxWidth - 15, messageY + boxHeight - 15);
-  ctx.restore();
-
-  // Enhanced message text styling with larger font
-  ctx.fillStyle = '#1F2937';
-  ctx.font = 'bold 16px system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.textAlign = 'left';
+  // Clean message text styling
+  ctx.font = '22px "Poppins", system-ui, sans-serif';
+  ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#374151';
 
-  // Smart word wrapping with better spacing
+  // Smart word wrapping
   const words = message.split(' ');
   const lines = [];
   let currentLine = '';
-  const maxWidth = boxWidth - 70; // Better margins for readability
   
   for (const word of words) {
     const testLine = currentLine + word + ' ';
@@ -386,19 +288,20 @@ function drawPixelPerfectMessage(
   }
   lines.push(currentLine.trim());
 
-  // Enhanced text positioning with better spacing
-  const lineHeight = 20; // Adjusted line height for better fit
-  const maxLines = 5; // Allow more lines for longer messages
+  // Clean text positioning
+  const lineHeight = 26;
+  const maxLines = 6;
   const linesToShow = Math.min(lines.length, maxLines);
   
-  // Calculate vertical centering based on actual number of lines
   const totalTextHeight = (linesToShow - 1) * lineHeight;
-  const startY = messageY + (boxHeight / 2) - (totalTextHeight / 2);
+  const startY = messageY - (totalTextHeight / 2);
   
-  ctx.textAlign = 'center';
+  // Draw each line cleanly
   for (let i = 0; i < linesToShow; i++) {
-    ctx.fillText(lines[i], width * 0.7, startY + i * lineHeight); // Center with message box at 0.7
+    ctx.fillText(lines[i], centerX, startY + i * lineHeight);
   }
+  
+  ctx.restore();
 }
 
 // Remove the old header and heart functions since upper section image handles this
